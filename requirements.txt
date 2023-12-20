@@ -1,0 +1,13 @@
+Django
+djangorestframework
+Pillow
+psycopg2-binary
+djangorestframework-simplejwt
+django-cors-headers
+drf-yasg
+python-dotenv
+requests
+celery
+redis
+django-celery-beat
+coverage

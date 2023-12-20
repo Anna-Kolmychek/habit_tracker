@@ -1,0 +1,66 @@
+[
+  {
+    "model": "habits.habit",
+    "pk": 1,
+    "fields": {
+      "owner": null,
+      "place": "кухня",
+      "time_when": "07:30:00",
+      "action": "выпить кофе",
+      "is_pleasant": true,
+      "related_habit": null,
+      "periodical": 1,
+      "reward": null,
+      "time_duration": null,
+      "is_public": true
+    }
+  },
+  {
+    "model": "habits.habit",
+    "pk": 2,
+    "fields": {
+      "owner": null,
+      "place": "спальня",
+      "time_when": "07:00:00",
+      "action": "проснуться",
+      "is_pleasant": false,
+      "related_habit": 1,
+      "periodical": 1,
+      "reward": null,
+      "time_duration": null,
+      "is_public": true
+    }
+  },
+  {
+    "model": "habits.habit",
+    "pk": 3,
+    "fields": {
+      "owner": null,
+      "place": "спальня",
+      "time_when": "07:10:00",
+      "action": "сделать зарядку",
+      "is_pleasant": false,
+      "related_habit": 1,
+      "periodical": 1,
+      "reward": null,
+      "time_duration": null,
+      "is_public": false
+    }
+  },
+  {
+    "model": "habits.habit",
+    "pk": 4,
+    "fields": {
+      "owner": null,
+      "place": "квартира",
+      "time_when": "07:20:00",
+      "action": "вытереть пыль",
+      "is_pleasant": false,
+      "related_habit": null,
+      "periodical": 3,
+      "reward": "возьми конфетку",
+      "time_duration": null,
+      "is_public": true
+    }
+  }
+]
