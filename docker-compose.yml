@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: habit_tracker
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    tty: true
+    command: sh -c "celery -A config worker -l INFO"
+    depends_on:
+      - redis
+      - app
+
+  celery-beat:
+    build: .
+    tty: true
+    command: sh -c "celery -A config beat -l INFO -S django"
+    depends_on:
+      redis:
+        condition: service_started
+      app:
+        condition: service_healthy
+
+  app:
+    build: .
+    tty: true
+    command: sh -c "python3 manage.py migrate &&
+                    python3 manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/habit_tracker
+    healthcheck:
+      test: "curl --fail http://127.0.0.1:8000/redoc"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+volumes:
+  pgdata:
