@@ -6,6 +6,63 @@
 
 <hr>
 
+## Запуск проекта
+
+1. Клонируйте исходники проекта:
+```
+git clone https://github.com/Anna-Kolmychek/habit_tracker.git
+```
+
+2. Создайте файл `.env` и запишите в него (пример структуры файла в `.env_sample`)
+- TG_BOT_TOKEN=(токен вашего бота)
+- TG_URL=https://api.telegram.org/bot
+
+3. Запустите проект с помощью docker-compose
+```
+docker-compose up --build
+```
+
+4. При желании загрузите тестовые привычки из фикстуры
+```
+docker-compose exec app python3 manage.py loaddata data_habits.json
+```
+
+5. Создайте админа и в админке задайте периодические задачи
+  - для получения новых сообщений от пользователей
+  - отправки сообщений с привычками пользователям
+```
+# создать админа
+docker-compose exec app python3 manage.py createsuperuser
+
+# админка по адресу
+http://localhost:8000/admin/
+
+В админке переходим в Periodic Tasks ->
+1) Add -> Заполняем поля для получению юзеров, напирмер так
+Name: Get Users
+Task (registered): tg_bot.tasks.get_tg_bot_update
+Interval Schedule: every 5 seconds
+Start Datetime:
+  Date - Today | 
+  Time:  Now | 
+
+2) Add -> Заполняем поля для отправки привычек, напирмер так
+Name: Check habits
+Task (registered): tg_bot.tasks.check_habits
+Interval Schedule: every 5 seconds
+Start Datetime:
+  Date - Today | 
+  Time:  Now | 
+```
+
+6. При желании можете запустить тесты и узнать покрытие
+```
+docker-compose exec app coverage run --source='.' manage.py test
+docker-compose exec app coverage report
+```
+
+<hr>
+
 ## Функциональность
 
 ### Пользователи
@@ -42,67 +99,9 @@
 - Реализован сбор пользователей, которые обратились к боту.
 - Реализована рассылка пользователям, которые ранее обращались к боту, в тг информация о привычках, которые нужно повторить.
 
-<hr>
+### Docker
 
-## Запуск проекта
+- Описан Dockerfile для django-приложения
+- Создан docker-compose для всех сервисов, необходимых для запуска приложения
+(django-приложение, postgresql, redis, celery)
 
-1. Скопируйте проект, установите виртуальное окружение и зависимости из `requirements.txt`/
-
-2. В файле `config/settings.py` при необходимости измените настройки базы данных. 
-В проекте используется локальный `postgresql`, база с именем `django_elearning`, 
-пользователь `postgres` с входом для локального подключения без пароля
-```
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'habit_tracker',
-        'USER': 'postgres',
-    }
-}
-```
-
-3. Создайте пустую базу данных с именем `habit_tracker` (при локольном входе в `postgresql` без пароля):
-```
-psql -U postgres
-create database habit_tracker;
-\q
-```
-
-4. Примените миграции
-```
-python3 manage.py migrate
-```
-
-5. Создайте файл `.env` и запишите в него (пример структуры файла в `.env_sample`)
-- TG_BOT_TOKEN=(токен вашего бота)
-- TG_URL=https://api.telegram.org/bot
-
-
-6. При желании загрузите тестовые привычки из фикстуры
-```
-python3 manage.py loaddata data_habits.json
-```
-
-7. Создайте админа и в админке задайте периодические задачи
-  - для получения новых сообщений от пользователей
-  - отправки сообщений с привычками пользователям
-```
-python3 manage.py createsuperuser
-```
-
-8. Запустите сервер
-```
-python3 manage.py runserver
-```
-
-9. Запустите celery для отложенных и периодических задач
-```
-celery -A config worker -l INFO
-celery -A config beat -l INFO -S django
-```
-
-10. При желании можете запустить тесты и узнать покрытие
-```
-coverage run --source='.' manage.py test
-coverage report
-```
